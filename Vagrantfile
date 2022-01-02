@@ -14,18 +14,18 @@ Vagrant.configure("2") do |config|
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://vagrantcloud.com/search.
 
-  config.vm.define "uda_dashboard" do |uda_dashboard|
-    uda_dashboard.vm.box = default_box
-    uda_dashboard.vm.hostname = "uda_dashboard"
-    uda_dashboard.vm.network 'private_network', ip: "192.168.0.200",  virtualbox__intnet: true
-    uda_dashboard.vm.network "forwarded_port", guest: 6443, host: 6443 # API Access
+  config.vm.define "uda3" do |uda3|
+    uda3.vm.box = default_box
+    uda3.vm.hostname = "uda3"
+    uda3.vm.network 'private_network', ip: "192.168.0.200",  virtualbox__intnet: true
+    uda3.vm.network "forwarded_port", guest: 6443, host: 6443 # API Access
 
 
-    uda_dashboard.vm.provider "virtualbox" do |v|
+    uda3.vm.provider "virtualbox" do |v|
       v.memory = "4096"
-      v.name = "uda_dashboard"
+      v.name = "uda3"
       end
-    uda_dashboard.vm.provision "shell", inline: <<-SHELL
+    uda3.vm.provision "shell", inline: <<-SHELL
       sudo zypper refresh
       sudo zypper --non-interactive install bzip2
       sudo zypper --non-interactive install etcd
