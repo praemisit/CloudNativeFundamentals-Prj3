@@ -3,12 +3,38 @@
 ## Verify the monitoring installation
 
 *TODO:* run `kubectl` command to show the running pods and services for all components. Take a screenshot of the output and include it here to verify the installation
-### 
+### Setup Prometheus and Grafana on Kubernetes using prometheus-operator
+I have used prometheus-operator based on [this guide](https://computingforgeeks.com/setup-prometheus-and-grafana-on-kubernetes/) to setup Prometheus and Grafana. 
+
+![Pods and Services from the Monitoring namespace](./answer-img/01_Pods_Services_Monitorinig.pn
+
+### Setup Jaeger Operator and Instance
+The instructions from the course did not work anymore. Therefore I used the official [Jaeger Operator for Kubernetes](https://github.com/jaegertracing/jaeger-operator) instructions. 
+
+![Pods and Services from the Observability namespace](./answer-img/01_Pods_Services_Observability.png)
+
+
 ## Setup the Jaeger and Prometheus source
 *TODO:* Expose Grafana to the internet and then setup Prometheus as a data source. Provide a screenshot of the home page after logging into Grafana.
+### Accessing Prometheus UI and Grafana 
+``` shell
+# Access Prometheus
+kubectl --namespace monitoring port-forward svc/prometheus-k8s 9090
+
+# Access Alertmanager
+kubectl --namespace monitoring port-forward svc/alertmanager-main 9093
+
+# Access Grafana
+kubectl --namespace monitoring port-forward svc/grafana 3000
+```
+
+![Grafana homage](./answer-img/03_Grafana_Home.png)
+
 
 ## Create a Basic Dashboard
 *TODO:* Create a dashboard in Grafana that shows Prometheus as a source. Take a screenshot and include it here.
+
+![Grafana Example Dashboard](./answer-img/04_Grafana_Dashboard.png)
 
 ## Describe SLO/SLI
 *TODO:* Describe, in your own words, what the SLIs are, based on an SLO of *monthly uptime* and *request response time*.
