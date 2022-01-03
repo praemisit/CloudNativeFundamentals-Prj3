@@ -13,6 +13,9 @@ The instructions from the course did not work anymore. Therefore I used the offi
 
 ![Pods and Services from the Observability namespace](./answer-img/02_Pods_Services_Observability.png)
 
+### Pods and Services from the Default namespace
+
+![Pods and Services from the Default namespace](./answer-img/02b_Pods_Services_Default.png)
 
 ## Setup the Jaeger and Prometheus source
 *TODO:* Expose Grafana to the internet and then setup Prometheus as a data source. Provide a screenshot of the home page after logging into Grafana.
@@ -49,24 +52,24 @@ E.g.: The average response time for a request in October 2021 has been 400ms.
 ## Creating SLI metrics.
 *TODO:* It is important to know why we want to measure certain metrics for our customer. Describe in detail 5 metrics to measure these SLIs. 
 
-+ The uptime of the application last month was 99.5%
-+ The average response time last month has been 154ms.
-+ Less than 1% of http requests had a 50x response during last month.
-+ The overall number of http requests has been above 10k requests during last month.
-+ The peak memory usage of the system has been below 80% of total available memory during last month.
++ Uptime: Percentage of time the services of an application are available for the users 
++ Saturation: The amount of CPU and/or memory consumption.
++ Latency: The time that it takes to serve a request measured in ms.
++ Errors: Number of requests that are failing, e.g. HTTP 500 requests.
++ Network traffic: Number of http requests in a specific period of time
 
 ## Create a Dashboard to measure our SLIs
 *TODO:* Create a dashboard to measure the uptime of the frontend and backend services We will also want to measure to measure 40x and 50x errors. Create a dashboard that show these values over a 24 hour period and take a screenshot.
 
 ### Dashboard with uptime and number of errors
 
-![Grafana Uptime and Errors](./answer-img/05_Grafana_Uptime_Errors.png)
+![Grafana Uptime and Errors](./answer-img/05a_Grafana_Uptime_Errors.png)
 
 ## Tracing our Flask App
 *TODO:*  We will create a Jaeger span to measure the processes on the backend. Once you fill in the span, provide a screenshot of it here. Also provide a (screenshot) sample Python file containing a trace and span code used to perform Jaeger traces on the backend service.
 
 ### Jaeger Span
-![Jaeger Span](./answer-img/06_Jaeger_Span.png)
+![Jaeger Span](./answer-img/06a_Jaeger_Span.png)
 
 ### Python Code for Jaeger
 
@@ -76,39 +79,37 @@ E.g.: The average response time for a request in October 2021 has been 400ms.
 *TODO:* Now that the trace is running, let's add the metric to our current Grafana dashboard. Once this is completed, provide a screenshot of it here.
 
 ### Jaeger metric in Grafana
-![Jaeger Span](./answer-img/08_Jaeger_In_Grafana.png)
+![Jaeger Span](./answer-img/08a_Jaeger_In_Grafana.png)
 
 ## Report Error
 *TODO:* Using the template below, write a trouble ticket for the developers, to explain the errors that you are seeing (400, 500, latency) and to let them know the file that is causing the issue also include a screenshot of the tracer span to demonstrate how we can user a tracer to locate errors easily.
 
 TROUBLE TICKET
 
-Name: Max Mustermann
+Name: Error on http://localhost:5050/500
 
-Date: Jan 2; 17:23
+Date: Jan 3; 11:45
 
-Subject: HTTP 405 Error ("Method Not Allowed") at http://localhost:5050/star
+Subject: Cannot access the endpoint 500 on backend service.
 
-Affected Area: Backend Service; Endpoint /star
+Affected Area: "./reference-app/backend/app.py
 
-Severity: Critical
+Severity: High
 
-Description: The backend service does not provide the expected results. Please refer to tracer span 3994b5b for more details.
+Description: The backend service produces an HTTP 500 error on endpoint 500. Please refer to tracer span 198514e for more details.
 
 ### Screenshot of the Tracer span
 
-![Tracer Span](./answer-img/09_Error_Trace.png)
+![Tracer Span](./answer-img/09a_Error_Trace.png)
 
 ## Creating SLIs and SLOs
 *TODO:* We want to create an SLO guaranteeing that our application has a 99.95% uptime per month. Name four SLIs that you would use to measure the success of this SLO.
 
-### SLIs to measure the desired SLO
-1. The average CPU usage in December is 15%.
-2. The average Memory usage in December is 450MB.
-3. The average response time in December is 800ms.
-4. The error rate in December is 1.4%
-
-sum(rate(http_request_duration_seconds_sum[5m])) / sum(rate(http_request_duration_seconds_count[5m]))
+### SLIs / SLOs
+1. Traffic: Number of HTTP requests above 10 000 per month.
+2. Saturation: Average memory usage below 450MB.
+3. Latency: Average response time of requests below 800ms during a month.
+4. Errors: The Success rate of HTTP requests (status code 2xx) higher than 97%.
 
 ## Building KPIs for our plan
 *TODO*: Now that we have our SLIs and SLOs, create a list of 2-3 KPIs to accurately measure these metrics as well as a description of why those KPIs were chosen. We will make a dashboard for this, but first write them down here.
