@@ -63,7 +63,7 @@ E.g.: The average response time for a request in October 2021 has been 400ms.
 
 ### Dashboard with uptime and number of errors
 
-![Grafana Uptime and Errors](./answer-img/05a_Grafana_Uptime_Errors.png)
+![Grafana Uptime and Errors](./answer-img/05b_Grafana_Uptime_Errors.png)
 
 ## Tracing our Flask App
 *TODO:*  We will create a Jaeger span to measure the processes on the backend. Once you fill in the span, provide a screenshot of it here. Also provide a (screenshot) sample Python file containing a trace and span code used to perform Jaeger traces on the backend service.
