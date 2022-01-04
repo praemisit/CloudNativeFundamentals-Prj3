@@ -1,10 +1,23 @@
 import opentracing.tracer
 from flask import Flask, render_template, request, jsonify
 from flask_pymongo import PyMongo
+from flask_cors import CORS
+import os
 import logging
+import pymongo
 from jaeger_client import Config
 from flask_opentracing import FlaskTracing
-
+from jaeger_client.metrics.prometheus import PrometheusMetricsFactory
+from opentelemetry import trace
+from opentelemetry.exporter.jaeger.thrift import JaegerExporter
+from opentelemetry.exporter import jaeger
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from opentelemetry.instrumentation.flask import FlaskInstrumentor
+from opentelemetry.instrumentation.requests import RequestsInstrumentor
+from opentelemetry.sdk.resources import SERVICE_NAME, Resource
+from opentelemetry.sdk.trace.export import ConsoleSpanExporter
+from prometheus_flask_exporter.multiprocess import GunicornInternalPrometheusMetrics
 
 
 
@@ -22,6 +35,29 @@ config = Config(
                         service_name="backend-service")
 jaeger_tracer = config.initialize_tracer()
 tracing = FlaskTracing(jaeger_tracer, True, app)
+
+# Added code for Flask metrics
+FlaskInstrumentor().instrument_app(app)
+RequestsInstrumentor().instrument()
+CORS(app)
+
+metrics = GunicornInternalPrometheusMetrics(app, group_by='endpoint')
+
+# static information as metric
+metrics.info('backend_app_info', 'Backend Application info', version='1.0.0')
+
+# register extra metrics
+metrics.register_default(
+    metrics.counter(
+        'by_path_counter', 'Request count by request paths', labels={'path': lambda: request.path}
+    )
+)
+
+# custom metric to be applied to multiple endpoints
+endpoint_counter = metrics.counter(
+    'by_endpoint_counter', 'Request count by endpoints',
+    labels={'endpoint': lambda: request.endpoint}
+)
 
 
 app.config['MONGO_DBNAME'] = 'example-mongodb'
@@ -54,6 +90,7 @@ def handle_invalid_usage(error):
 
 
 @app.route('/')
+@endpoint_counter
 def homepage():
     with opentracing.tracer.start_span("homepage", child_of=parent_span) as span:
         response = {"message": "homepage"}
@@ -62,6 +99,7 @@ def homepage():
 
 
 @app.route('/api')
+@endpoint_counter
 def my_api():
     with opentracing.tracer.start_span("api", child_of=parent_span) as span:
         response = {"message": "api"}
@@ -72,6 +110,7 @@ def my_api():
 
 
 @app.route('/star', methods=['POST'])
+@endpoint_counter
 def add_star():
     with opentracing.tracer.start_span("star", child_of=parent_span) as span:
         try:
@@ -88,6 +127,7 @@ def add_star():
 
 
 @app.route("/403")
+@endpoint_counter
 def status_code_403():
     status_code = 403
     raise InvalidUsage(
@@ -95,6 +135,7 @@ def status_code_403():
     )
 
 @app.route("/404")
+@endpoint_counter
 def status_code_404():
     status_code = 404
     raise InvalidUsage(
@@ -102,6 +143,7 @@ def status_code_404():
     )
 
 @app.route("/500")
+@endpoint_counter
 def status_code_500():
     status_code = 500
     raise InvalidUsage(
@@ -109,6 +151,7 @@ def status_code_500():
     )
 
 @app.route("/503")
+@endpoint_counter
 def status_code_503():
     status_code = 503
     raise InvalidUsage(
